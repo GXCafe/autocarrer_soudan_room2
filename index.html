@@ -124,8 +124,8 @@
         </div>
 
         <!-- Slide 2: The Challenge -->
-        <div class="infographic-slide">
-            <div class="my-auto">
+        <div class="infographic-slide justify-center">
+            <div>
                 <h2 class="text-2xl font-bold text-center mb-8">100年に一度の<span style="color: #FF6B6B;">大変革期</span>、その渦中で</h2>
                 <div class="space-y-8">
                     <div class="flex items-center">
@@ -156,26 +156,34 @@
 
         <!-- Slide 3: Skill Simulator -->
         <div class="infographic-slide">
-            <h2 class="text-2xl font-bold text-center mb-4">スキル価値<span style="color: #4ECDC4;">発見</span>シミュレーター</h2>
-            <p class="text-center text-gray-500 mb-6 text-sm">あなたの専門スキルを選択すると、活躍が期待される未来のフィールドが表示されます。</p>
-            <div id="skill-buttons" class="flex flex-wrap justify-center gap-2 mb-6">
-            </div>
-            <div id="fields-container" class="bg-gray-50 p-4 rounded-lg flex-grow flex flex-col justify-center">
-                <div id="fields-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                   <div id="fields-placeholder" class="col-span-full text-center text-gray-400 transition-opacity duration-300">
-                        <span class="text-4xl">👆</span>
-                        <p class="mt-2">上のスキルを選択して、<br>あなたの未来の可能性を探ろう！</p>
-                   </div>
+            <div class="flex flex-col h-full">
+                <div>
+                    <h2 class="text-2xl font-bold text-center mb-4">スキル価値<span style="color: #4ECDC4;">発見</span>シミュレーター</h2>
+                    <p class="text-center text-gray-500 mb-6 text-sm">あなたの専門スキルを選択すると、活躍が期待される未来のフィールドが表示されます。</p>
+                    <div id="skill-buttons" class="flex flex-wrap justify-center gap-2 mb-6">
+                    </div>
+                </div>
+                <div id="fields-container" class="bg-gray-50 p-4 rounded-lg flex-grow flex flex-col justify-center min-h-0">
+                    <div id="fields-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                       <div id="fields-placeholder" class="col-span-full text-center text-gray-400 transition-opacity duration-300">
+                            <span class="text-4xl">👆</span>
+                            <p class="mt-2">上のスキルを選択して、<br>あなたの未来の可能性を探ろう！</p>
+                       </div>
+                    </div>
                 </div>
             </div>
         </div>
         
         <!-- Slide 4: Growth Potential Chart -->
         <div class="infographic-slide">
-            <h2 class="text-2xl font-bold text-center mb-6">関連成長分野の<span style="color: #06D6A0;">将来性</span></h2>
-            <p class="text-center text-gray-500 mb-6 text-sm">あなたのスキルが活かせる分野は、力強い成長が見込まれています。</p>
-            <div class="chart-container flex-grow">
-                <canvas id="growthChart"></canvas>
+            <div class="flex flex-col h-full">
+                <div>
+                    <h2 class="text-2xl font-bold text-center mb-6">関連成長分野の<span style="color: #06D6A0;">将来性</span></h2>
+                    <p class="text-center text-gray-500 mb-6 text-sm">あなたのスキルが活かせる分野は、力強い成長が見込まれています。</p>
+                </div>
+                <div class="chart-container flex-grow min-h-0">
+                    <canvas id="growthChart"></canvas>
+                </div>
             </div>
         </div>
 
