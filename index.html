@@ -14,7 +14,7 @@
     <!-- Visualization & Content Choices: 
         - Report Info: 業界の大変革。Goal: ユーザーの共感を呼ぶ。Viz/Method: 1枚目のタイトルカード。Interaction: なし。Justification: 強い問いかけでユーザーの注意を引きつけるため。Library: -
         - Report Info: EV、自動運転、MaaS。Goal: 業界の変化を具体的に示す。Viz/Method: 2枚目のアイコンとテキストカード。Interaction: なし。Justification: 複雑なトレンドを3つのシンプルな要素に分解し、視覚的に理解しやすくするため。Library: -
-        - Report Info: スキルの応用可能性。Goal: 自身の価値を具体的に発見させる。Viz/Method: 3枚目の「スキル価値発見シミュレーター」。Interaction: スキルボタンクリックで、アイコンとキャッチコピー付きのカード型UIがアニメーション表示される。カードクリックで詳細モーダルを表示し、Gemini APIによる「キャリアパス分析」「AI面接コーチ」機能を提供。Justification: ユーザーの操作に対する視覚的なフィードバックを強化し、発見の楽しさを演出することでエンゲージメントを高め、離脱を防ぐため。Library: Vanilla JS, Gemini API。
+        - Report Info: スキルの応用可能性。Goal: 自身の価値を具体的に発見させる。Viz/Method: 3枚目の「スキル価値発見シミュレーター」。Interaction: スキルボタンクリックで、アイコンとキャッチコピー付きのカード型UIがレスポンシブなグリッドレイアウトでアニメーション表示される。カードクリックで詳細モーダルを表示し、Gemini APIによる「キャリアパス分析」「AI面接コーチ」機能を提供。Justification: どのデバイスでも一貫した高品質なUXを提供し、発見の楽しさを演出することでエンゲージメントを高め、離脱を防ぐため。Library: Vanilla JS, Gemini API。
         - Report Info: 成長分野の将来性。Goal: 発見した可能性を客観的データで裏付ける。Viz/Method: 4枚目の棒グラフ。Interaction: なし。Justification: 定性的なキャリアの可能性を、定量的な市場成長予測で補強し、信頼性を高めるため。Library: Chart.js。
         - Report Info: 次のステップ。Goal: ユーザーの行動を促す。Viz/Method: 5枚目の結論と無料相談へのCTAカード。Justification: 不安を具体的な行動へと繋げる、明確な次のステップを提供するため。Library: -
         - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
@@ -108,6 +108,7 @@
         .chart-container {
             position: relative;
             width: 100%;
+            height: 100%;
         }
     </style>
 </head>
@@ -116,18 +117,17 @@
     <div class="infographic-container p-4">
 
         <!-- Slide 1: Title -->
-        <div class="infographic-slide text-center" style="background-color: #1A2E44; color: white;">
+        <div class="infographic-slide text-center">
             <div class="flex-grow flex flex-col justify-center">
                 <h1 class="text-4xl md:text-5xl font-black leading-tight mb-4" style="font-family: 'Noto Sans JP', sans-serif;">自動車業界エンジニアの<br>あなたへ</h1>
-                <p class="text-xl md:text-2xl font-bold mt-6" style="color: #FFD166;">その市場価値、<br>このままで本当に通用する…？</p>
+                <p class="text-xl md:text-2xl font-bold mt-6" style="color: #FF6B6B;">その市場価値、<br>このままで本当に通用する…？</p>
             </div>
-            <div class="text-xs text-gray-400">1/5</div>
         </div>
 
         <!-- Slide 2: The Challenge -->
         <div class="infographic-slide">
             <h2 class="text-2xl font-bold text-center mb-8">100年に一度の<span style="color: #FF6B6B;">大変革期</span>、その渦中で</h2>
-            <div class="space-y-8 flex-grow">
+            <div class="space-y-8 my-auto">
                 <div class="flex items-center">
                     <span class="text-5xl mr-6">🔋</span>
                     <div>
@@ -151,7 +151,6 @@
                 </div>
             </div>
              <p class="text-center text-gray-500 mt-8">あなたの持つスキルは、<br>新しい時代でこそ輝きを増します。</p>
-            <div class="text-xs text-gray-400 text-center mt-4">2/5</div>
         </div>
 
         <!-- Slide 3: Skill Simulator -->
@@ -160,25 +159,23 @@
             <p class="text-center text-gray-500 mb-6 text-sm">あなたの専門スキルを選択すると、活躍が期待される未来のフィールドが表示されます。</p>
             <div id="skill-buttons" class="flex flex-wrap justify-center gap-2 mb-6">
             </div>
-            <div id="fields-container" class="bg-gray-50 p-4 rounded-lg flex-grow flex flex-col justify-center">
-                <div id="fields-list" class="space-y-3">
-                   <div id="fields-placeholder" class="text-center text-gray-400 transition-opacity duration-300">
+            <div id="fields-container" class="bg-gray-50 p-4 rounded-lg flex flex-col justify-center my-auto">
+                <div id="fields-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                   <div id="fields-placeholder" class="col-span-full text-center text-gray-400 transition-opacity duration-300">
                         <span class="text-4xl">👆</span>
                         <p class="mt-2">上のスキルを選択して、<br>あなたの未来の可能性を探ろう！</p>
                    </div>
                 </div>
             </div>
-            <div class="text-xs text-gray-400 text-center mt-4">3/5</div>
         </div>
         
         <!-- Slide 4: Growth Potential Chart -->
         <div class="infographic-slide">
             <h2 class="text-2xl font-bold text-center mb-6">関連成長分野の<span style="color: #06D6A0;">将来性</span></h2>
             <p class="text-center text-gray-500 mb-6 text-sm">あなたのスキルが活かせる分野は、力強い成長が見込まれています。</p>
-            <div class="chart-container flex-grow">
+            <div class="chart-container">
                 <canvas id="growthChart"></canvas>
             </div>
-            <div class="text-xs text-gray-400 text-center mt-4">4/5</div>
         </div>
 
         <!-- Slide 5: Call to Action for Free Consultation -->
@@ -200,7 +197,6 @@
                     今すぐ無料で相談する
                 </button>
             </div>
-            <div class="text-xs text-gray-600 mt-auto">5/5</div>
         </div>
     </div>
 
@@ -328,22 +324,22 @@
                     skillButtonsContainer.querySelectorAll('button').forEach(btn => btn.classList.remove('active', 'bg-red-500', 'text-white'));
                     e.target.classList.add('active', 'bg-red-500', 'text-white');
 
-                    fieldsPlaceholder.classList.add('opacity-0');
+                    fieldsPlaceholder.classList.add('hidden');
                     fieldsListContainer.innerHTML = '';
                     
                     if (selectedSkill) {
                         selectedSkill.fields.forEach((field, index) => {
                             const detail = fieldDetails[field] || { icon: '💼', catchphrase: '新たな可能性' };
                             const card = document.createElement('div');
-                            card.className = 'field-card bg-white p-4 rounded-lg shadow-md flex items-center hover:shadow-lg';
+                            card.className = 'field-card bg-white p-4 rounded-lg shadow-md flex flex-col text-center items-center hover:shadow-lg transition-all duration-300';
                             card.dataset.field = field;
                             card.innerHTML = `
-                                <span class="text-3xl mr-4">${detail.icon}</span>
-                                <div class="flex-grow">
+                                <span class="text-4xl mb-2">${detail.icon}</span>
+                                <div class="flex-grow mb-3">
                                     <h4 class="font-bold text-gray-800">${field}</h4>
                                     <p class="text-xs text-gray-500">${detail.catchphrase}</p>
                                 </div>
-                                <button class="bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-full hover:bg-blue-600">詳しく見る</button>
+                                <button class="bg-blue-500 text-white text-xs font-bold py-1 px-4 rounded-full hover:bg-blue-600 whitespace-nowrap w-full">詳しく見る</button>
                             `;
                             fieldsListContainer.appendChild(card);
                             
