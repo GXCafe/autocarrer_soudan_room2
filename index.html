@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>（Gemini API搭載）自動車エンジニアのためのキャリア価値発見インフォグラフィック</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Energetic & Playful -->
+    <!-- Application Structure Plan: このインフォグラフィックは、Instagramのカルーセル投稿（5枚）を想定し、各スライドが4:5の比率で完結するよう設計されています。ユーザー（自動車エンジニア）を「共感」→「発見」→「確信」→「行動」へと導くストーリーテリング構造を採用。1枚目で課題を提示し、2枚目で業界の変化を視覚化。3枚目でインタラクティブな「スキル価値発見シミュレーター」を提供し、4枚目でその可能性をデータで裏付け、最後の5枚目で具体的な次のステップを提示します。これにより、ユーザーはスワイプするごとに自身のキャリアの可能性を段階的に理解し、エンゲージメントを高めます。 -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: 業界の大変革。Goal: ユーザーの共感を呼ぶ。Viz/Method: 1枚目のタイトルカード。Interaction: なし。Justification: 強い問いかけでユーザーの注意を引きつけるため。Library: -
+        - Report Info: EV、自動運転、MaaS。Goal: 業界の変化を具体的に示す。Viz/Method: 2枚目のアイコンとテキストカード。Interaction: なし。Justification: 複雑なトレンドを3つのシンプルな要素に分解し、視覚的に理解しやすくするため。Library: -
+        - Report Info: スキルの応用可能性。Goal: 自身の価値を具体的に発見させる。Viz/Method: 3枚目の「スキル価値発見シミュレーター」。Interaction: スキルボタンクリックで、アイコンとキャッチコピー付きのカード型UIがアニメーション表示される。カードクリックで詳細モーダルを表示し、Gemini APIによる「キャリアパス分析」「AI面接コーチ」機能を提供。Justification: ユーザーの操作に対する視覚的なフィードバックを強化し、発見の楽しさを演出することでエンゲージメントを高め、離脱を防ぐため。Library: Vanilla JS, Gemini API。
+        - Report Info: 成長分野の将来性。Goal: 発見した可能性を客観的データで裏付ける。Viz/Method: 4枚目の棒グラフ。Interaction: なし。Justification: 定性的なキャリアの可能性を、定量的な市場成長予測で補強し、信頼性を高めるため。Library: Chart.js。
+        - Report Info: 次のステップ。Goal: ユーザーの行動を促す。Viz/Method: 5枚目の結論と無料相談へのCTAカード。Justification: 不安を具体的な行動へと繋げる、明確な次のステップを提供するため。Library: -
+        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            background-color: #F0F4F8; /* Light Blue-Gray background */
+        }
+        .infographic-container {
+            max-width: 800px;
+            margin: 2rem auto;
+        }
+        .infographic-slide {
+            background-color: white;
+            aspect-ratio: 4 / 5;
+            width: 100%;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border: 1px solid #E5E7EB;
+        }
+        .btn-skill {
+            transition: all 0.2s ease-in-out;
+            border: 2px solid transparent;
+        }
+        .btn-skill.active {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+            border-color: #FF6B6B;
+        }
+        .field-card {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            cursor: pointer;
+        }
+        .field-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease-in-out;
+        }
+        .modal-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 500px;
+            width: 90%;
+            transform: translateY(20px);
+            transition: all 0.3s ease-in-out;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-overlay.visible .modal-content {
+            transform: translateY(0);
+        }
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #4ECDC4;
+            animation: spin 1s ease infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="infographic-container p-4">
+
+        <!-- Slide 1: Title -->
+        <div class="infographic-slide text-center" style="background-color: #1A2E44; color: white;">
+            <div class="flex-grow flex flex-col justify-center">
+                <h1 class="text-4xl md:text-5xl font-black leading-tight mb-4" style="font-family: 'Noto Sans JP', sans-serif;">自動車業界エンジニアの<br>あなたへ</h1>
+                <p class="text-xl md:text-2xl font-bold mt-6" style="color: #FFD166;">その市場価値、<br>このままで本当に通用する…？</p>
+            </div>
+            <div class="text-xs text-gray-400">1/5</div>
+        </div>
+
+        <!-- Slide 2: The Challenge -->
+        <div class="infographic-slide">
+            <h2 class="text-2xl font-bold text-center mb-8">100年に一度の<span style="color: #FF6B6B;">大変革期</span>、その渦中で</h2>
+            <div class="space-y-8 flex-grow">
+                <div class="flex items-center">
+                    <span class="text-5xl mr-6">🔋</span>
+                    <div>
+                        <h3 class="text-xl font-bold">EVシフトの加速</h3>
+                        <p class="text-gray-600 mt-1">電動化によるハード・ソフトの構造変化</p>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-5xl mr-6">🤖</span>
+                    <div>
+                        <h3 class="text-xl font-bold">自動運転の進化</h3>
+                        <p class="text-gray-600 mt-1">ソフトウェア中心への劇的な移行</p>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-5xl mr-6">🌐</span>
+                    <div>
+                        <h3 class="text-xl font-bold">MaaSの普及</h3>
+                        <p class="text-gray-600 mt-1">「所有」から「利用」への価値観シフト</p>
+                    </div>
+                </div>
+            </div>
+             <p class="text-center text-gray-500 mt-8">あなたの持つスキルは、<br>新しい時代でこそ輝きを増します。</p>
+            <div class="text-xs text-gray-400 text-center mt-4">2/5</div>
+        </div>
+
+        <!-- Slide 3: Skill Simulator -->
+        <div class="infographic-slide">
+            <h2 class="text-2xl font-bold text-center mb-4">スキル価値<span style="color: #4ECDC4;">発見</span>シミュレーター</h2>
+            <p class="text-center text-gray-500 mb-6 text-sm">あなたの専門スキルを選択すると、活躍が期待される未来のフィールドが表示されます。</p>
+            <div id="skill-buttons" class="flex flex-wrap justify-center gap-2 mb-6">
+            </div>
+            <div id="fields-container" class="bg-gray-50 p-4 rounded-lg flex-grow flex flex-col justify-center">
+                <div id="fields-list" class="space-y-3">
+                   <div id="fields-placeholder" class="text-center text-gray-400 transition-opacity duration-300">
+                        <span class="text-4xl">👆</span>
+                        <p class="mt-2">上のスキルを選択して、<br>あなたの未来の可能性を探ろう！</p>
+                   </div>
+                </div>
+            </div>
+            <div class="text-xs text-gray-400 text-center mt-4">3/5</div>
+        </div>
+        
+        <!-- Slide 4: Growth Potential Chart -->
+        <div class="infographic-slide">
+            <h2 class="text-2xl font-bold text-center mb-6">関連成長分野の<span style="color: #06D6A0;">将来性</span></h2>
+            <p class="text-center text-gray-500 mb-6 text-sm">あなたのスキルが活かせる分野は、力強い成長が見込まれています。</p>
+            <div class="chart-container flex-grow">
+                <canvas id="growthChart"></canvas>
+            </div>
+            <div class="text-xs text-gray-400 text-center mt-4">4/5</div>
+        </div>
+
+        <!-- Slide 5: Call to Action for Free Consultation -->
+        <div class="infographic-slide text-center" style="background-color: #FFD166;">
+            <div class="flex-grow flex flex-col justify-center items-center">
+                <h2 class="text-3xl font-black mb-4 text-gray-800">未来への第一歩</h2>
+                <p class="text-gray-700 max-w-sm mx-auto mb-6">
+                    あなたの市場価値を最大化するために、<br>専門家と一緒にキャリアを考えませんか？
+                </p>
+                <div class="bg-white/70 p-6 rounded-lg text-left w-full max-w-sm mb-6 shadow-md">
+                    <h3 class="font-bold text-gray-800 text-lg mb-3 text-center">無料キャリア相談でできること</h3>
+                    <ul class="space-y-2 text-gray-700">
+                        <li class="flex items-start"><span class="text-green-500 mr-2">✔</span> <span>あなたのスキルの棚卸しと強みの再発見</span></li>
+                        <li class="flex items-start"><span class="text-green-500 mr-2">✔</span> <span>最新の市場動向に基づいたキャリアパス設計</span></li>
+                        <li class="flex items-start"><span class="text-green-500 mr-2">✔</span> <span>非公開求人を含む、具体的な求人のご紹介</span></li>
+                    </ul>
+                </div>
+                <button class="bg-gray-800 text-white font-bold py-4 px-10 rounded-full hover:bg-black transition-colors shadow-lg">
+                    今すぐ無料で相談する
+                </button>
+            </div>
+            <div class="text-xs text-gray-600 mt-auto">5/5</div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="modal-title" class="text-2xl font-bold mb-4"></h3>
+            <p id="modal-description" class="text-gray-600 mb-4"></p>
+            
+            <div class="border-t pt-4">
+                <button id="gemini-analyze-button" class="w-full bg-blue-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors mb-4">
+                    ✨ AIにキャリアパスを詳しく分析してもらう
+                </button>
+                <div id="gemini-loading-path" class="hidden justify-center items-center mt-4">
+                    <div class="spinner"></div><p class="ml-3 text-gray-700">AIが分析中...</p>
+                </div>
+                <div id="gemini-result-path" class="mt-4 hidden"></div>
+            </div>
+
+            <div id="interview-coach-container" class="border-t pt-4 mt-4 hidden">
+                 <button id="gemini-interview-button" class="w-full bg-green-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-600 transition-colors mb-4">
+                    ✨ AI面接コーチと練習する
+                </button>
+                <div id="gemini-loading-interview" class="hidden justify-center items-center mt-4">
+                    <div class="spinner"></div><p class="ml-3 text-gray-700">AIが質問を準備中...</p>
+                </div>
+                <div id="gemini-result-interview" class="mt-4 hidden"></div>
+            </div>
+
+            <div class="text-right mt-6">
+                <button id="modal-close" class="bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300">閉じる</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let activeSkillId = null;
+            let activeSkillName = null;
+
+            const skillsData = [
+                { id: 'engine', name: 'エンジン/駆動系設計', fields: ['ドローン開発', '産業用ロボット', '発電システム'] },
+                { id: 'chassis', name: 'シャシー/車体設計', fields: ['航空宇宙', '建設機械', '鉄道車両'] },
+                { id: 'cad', name: 'CAD/CAE解析', fields: ['医療機器設計', '建築デザイン', '家電製品開発'] },
+                { id: 'control', name: '制御システム開発', fields: ['IoTデバイス', 'ファクトリーオートメーション', 'スマートホーム'] },
+                { id: 'material', name: '材料開発/物性評価', fields: ['高機能素材メーカー', '半導体産業', 'スポーツ用品'] },
+                { id: 'production', name: '生産技術/品質管理', fields: ['医薬品製造', '食品工場', '精密機器メーカー'] }
+            ];
+            
+            const fieldDetails = {
+                'ドローン開発': { icon: '🚁', catchphrase: '空の産業革命をリードする' },
+                '産業用ロボット': { icon: '🤖', catchphrase: '未来の工場を創造する' },
+                '発電システム': { icon: '⚡️', catchphrase: 'クリーンな社会を支える' },
+                '航空宇宙': { icon: '🚀', catchphrase: '人類の新たなフロンティアへ' },
+                '建設機械': { icon: '🚜', catchphrase: '次世代のインフラを築く' },
+                '鉄道車両': { icon: '🚆', catchphrase: '安全で快適な移動を実現' },
+                '医療機器設計': { icon: '🩺', catchphrase: '人々の健康と命を守る' },
+                '建築デザイン': { icon: '🏢', catchphrase: '持続可能な都市を設計' },
+                '家電製品開発': { icon: '💡', catchphrase: 'スマートな暮らしを提案' },
+                'IoTデバイス': { icon: '🌐', catchphrase: 'あらゆるモノを繋ぐ頭脳' },
+                'ファクトリーオートメーション': { icon: '🏭', catchphrase: '日本の製造業を革新する' },
+                'スマートホーム': { icon: '🏠', catchphrase: '快適で安全な住まいを' },
+                '高機能素材メーカー': { icon: '🔬', catchphrase: '未来を創る新素材を開発' },
+                '半導体産業': { icon: '💾', catchphrase: 'デジタル社会の心臓部' },
+                'スポーツ用品': { icon: '🏆', catchphrase: 'アスリートの限界を超える' },
+                '医薬品製造': { icon: '💊', catchphrase: '高品質な医療を世界へ' },
+                '食品工場': { icon: '🍎', catchphrase: '食の安全と未来を担う' },
+                '精密機器メーカー': { icon: '⚙️', catchphrase: '見えない精度を支える技術' }
+            };
+
+            const fieldsInfo = {
+                'ドローン開発': { title: 'ドローン開発', description: '国内市場は2030年度に1兆円規模へ成長予測(CAGR 15.2%)。物流、点検、農業、エンタメなど用途が爆発的に拡大。機体開発だけでなく、サービス開発の価値が急上昇しており、制御システムやデータ分析スキルが直接活かせます。' },
+                '産業用ロボット': { title: '産業用ロボット', description: '労働力不足を背景に、製造業以外（食品、医薬品、物流）への導入が加速。世界市場は年々拡大し、特にアジアが70%以上を占めます。自動車で培った堅牢な自動化技術は、他分野で高い競争力を持ちます。' },
+                '発電システム': { title: '発電システム', description: '脱炭素化の流れで再生可能エネルギー市場が急拡大。特にV2G（Vehicle-to-Grid）技術は、EVを「走る蓄電池」として活用する新分野。バッテリー制御やエネルギーマネジメントの知識が、電力インフラの安定化に貢献します。' },
+                '航空宇宙': { title: '航空宇宙', description: '民間主導の宇宙開発（ニュースペース）が活発化。衛星コンステレーション構築のため、衛星の量産化が急務。自動車の生産技術や軽量化材料、信頼性の高い組込みシステム開発の経験が、コスト削減と開発速度向上に直結します。' },
+                '建設機械': { title: '建設機械', description: '自動運転・遠隔操作技術の導入（i-Construction）が進み、建設現場のDXが加速中。センサー技術、制御ロジック、堅牢な車体設計スキルは、次世代建機の開発に不可欠です。' },
+                '鉄道車両': { title: '鉄道車両', description: '自動運転（GoA4）や状態基準保全（CBM）の導入が進む安定市場。安全性・信頼性が最重要視されるため、自動車の機能安全（ISO 26262）に関する知見や、高品質な制御ソフトウェア開発経験が高く評価されます。' },
+                '医療機器設計': { title: '医療機器設計', description: 'ヘルステック市場は国内で今後5年で1.4兆円規模へ倍増予測。特にウェアラブルデバイスや手術支援ロボットが成長。自動車で培った高信頼性ソフトウェア、人間工学に基づく設計、精密な生産技術が直接応用可能です。' },
+                '建築デザイン': { title: '建築デザイン', description: 'BIM/CIMの普及により、設計プロセスが3Dデータ中心に移行。自動車開発で用いる高度な3D-CAD/CAEスキルは、複雑な構造解析や環境シミュレーションで即戦力となります。デジタルツイン構築にも貢献できます。' },
+                '家電製品開発': { title: '家電製品開発', description: 'IoT化（スマート家電）が標準となり、ユーザー体験（UX）の重要性が増大。ネットワーク接続、センサー連携、直感的なUIを持つ製品開発が求められ、自動車のHMI（ヒューマンマシンインターフェース）開発経験が活かせます。' },
+                'IoTデバイス': { title: 'IoTデバイス', description: '国内市場は2028年に9.4兆円規模へ成長。スマートファクトリー、スマートホーム、ヘルスケアなどあらゆる産業の基盤技術。低消費電力設計、無線通信、組込みシステムのスキルは、多様な分野で需要があります。' },
+                'ファクトリーオートメーション': { title: 'ファクトリーオートメーション', description: '国内市場は2030年代に10兆円規模へ。労働力不足を背景に、全産業で導入が進む巨大市場。自動車の生産ラインで培った生産技術、ロボット制御、品質管理の知識は、他分野のスマート工場構築をリードする中核スキルです。' },
+                'スマートホーム': { title: 'スマートホーム', description: 'エネルギー管理（HEMS）やセキュリティ、快適性向上のため市場が拡大。各種センサー、通信モジュール、AIを統合するシステム開発が中心。自動車の車内ネットワークや制御システムの知識を応用できます。' },
+                '高機能素材メーカー': { title: '高機能素材メーカー', description: 'EV、半導体、航空宇宙など成長産業を支える基盤。軽量・高強度なCFRPや特殊樹脂、放熱材料などの開発が活発。自動車で培った材料評価や成形加工の知見は、新素材の実用化に不可欠です。' },
+                '半導体産業': { title: '半導体産業', description: '世界的に戦略物資と位置づけられ、国内でも大規模投資が進行中。特に車載半導体は需要が急増。半導体製造装置の精密な機構設計や、品質管理、クリーンルームでの生産技術経験などが求められます。' },
+                'スポーツ用品': { title: 'スポーツ用品', description: 'パフォーマンス向上のため、科学的アプローチが不可欠に。センサー内蔵ギアや、CAE解析による用具設計（例：ゴルフ、テニス）、人間工学に基づいたウェア開発など、自動車のR&D手法を応用できる領域が多数あります。' },
+                '医薬品製造': { title: '医薬品製造', description: '製造プロセスの自動化・無菌化（アイソレーター技術など）が急速に進展。自動車産業レベルの高度な品質管理（GMP準拠）や、ロボットを用いた精密な生産技術は、医薬品の安定供給と品質保証に大きく貢献します。' },
+                '食品工場': { title: '食品工場', description: '人手不足と安全衛生管理の高度化から、自動化ニーズが非常に高い分野。ピッキングや包装を行うロボットシステムの導入が活発。自動車で培った生産ラインの効率化（タクトタイム改善など）や生産技術が直接活かせます。' },
+                '精密機器メーカー': { title: '精密機器メーカー', description: '計測機器や分析機器など、ミクロン単位の精度が求められる分野。自動車部品の精密加工や、厳格な品質保証体制の構築・運用経験は、製品の信頼性を担保する上で極めて価値の高いスキルです。' }
+            };
+            
+            const skillButtonsContainer = document.getElementById('skill-buttons');
+            const fieldsListContainer = document.getElementById('fields-list');
+            const fieldsPlaceholder = document.getElementById('fields-placeholder');
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalDescription = document.getElementById('modal-description');
+            const modalClose = document.getElementById('modal-close');
+            
+            const geminiAnalyzeButton = document.getElementById('gemini-analyze-button');
+            const geminiResultPathContainer = document.getElementById('gemini-result-path');
+            const geminiLoadingPath = document.getElementById('gemini-loading-path');
+
+            const interviewCoachContainer = document.getElementById('interview-coach-container');
+            const geminiInterviewButton = document.getElementById('gemini-interview-button');
+            const geminiResultInterviewContainer = document.getElementById('gemini-result-interview');
+            const geminiLoadingInterview = document.getElementById('gemini-loading-interview');
+            
+            skillsData.forEach(skill => {
+                const button = document.createElement('button');
+                button.className = 'btn-skill bg-yellow-100 text-yellow-800 font-semibold py-2 px-3 rounded-full text-sm hover:bg-yellow-200';
+                button.textContent = skill.name;
+                button.dataset.skillId = skill.id;
+                skillButtonsContainer.appendChild(button);
+            });
+
+            skillButtonsContainer.addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON') {
+                    const selectedSkillId = e.target.dataset.skillId;
+                    const selectedSkill = skillsData.find(s => s.id === selectedSkillId);
+                    
+                    activeSkillId = selectedSkill.id;
+                    activeSkillName = selectedSkill.name;
+                    
+                    skillButtonsContainer.querySelectorAll('button').forEach(btn => btn.classList.remove('active', 'bg-red-500', 'text-white'));
+                    e.target.classList.add('active', 'bg-red-500', 'text-white');
+
+                    fieldsPlaceholder.classList.add('opacity-0');
+                    fieldsListContainer.innerHTML = '';
+                    
+                    if (selectedSkill) {
+                        selectedSkill.fields.forEach((field, index) => {
+                            const detail = fieldDetails[field] || { icon: '💼', catchphrase: '新たな可能性' };
+                            const card = document.createElement('div');
+                            card.className = 'field-card bg-white p-4 rounded-lg shadow-md flex items-center hover:shadow-lg';
+                            card.dataset.field = field;
+                            card.innerHTML = `
+                                <span class="text-3xl mr-4">${detail.icon}</span>
+                                <div class="flex-grow">
+                                    <h4 class="font-bold text-gray-800">${field}</h4>
+                                    <p class="text-xs text-gray-500">${detail.catchphrase}</p>
+                                </div>
+                                <button class="bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-full hover:bg-blue-600">詳しく見る</button>
+                            `;
+                            fieldsListContainer.appendChild(card);
+                            
+                            setTimeout(() => {
+                                card.classList.add('visible');
+                            }, index * 100);
+                        });
+                    }
+                }
+            });
+
+            fieldsListContainer.addEventListener('click', (e) => {
+                const card = e.target.closest('.field-card');
+                if (card) {
+                    const fieldName = card.dataset.field;
+                    const info = fieldsInfo[fieldName];
+                    if (info) {
+                        modalTitle.textContent = info.title;
+                        modalDescription.textContent = info.description;
+                        
+                        geminiResultPathContainer.innerHTML = '';
+                        geminiResultPathContainer.classList.add('hidden');
+                        interviewCoachContainer.classList.add('hidden');
+                        geminiResultInterviewContainer.innerHTML = '';
+                        geminiResultInterviewContainer.classList.add('hidden');
+
+                        geminiAnalyzeButton.dataset.field = fieldName;
+                        geminiInterviewButton.dataset.field = fieldName;
+                        
+                        modal.classList.add('visible');
+                    }
+                }
+            });
+
+            modalClose.addEventListener('click', () => modal.classList.remove('visible'));
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('visible');
+                }
+            });
+
+            async function callGeminiAPI(prompt, loadingElement, resultElement, onComplete) {
+                loadingElement.style.display = 'flex';
+                resultElement.innerHTML = '';
+                resultElement.classList.add('hidden');
+
+                const apiKey = ""; 
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                
+                const payload = {
+                    contents: [{ parts: [{ text: prompt }] }],
+                    generationConfig: {
+                        temperature: 0.7,
+                        topP: 0.95,
+                    }
+                };
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`API error: ${response.statusText}`);
+                    }
+                    
+                    const result = await response.json();
+                    const text = result.candidates[0].content.parts[0].text;
+                    
+                    resultElement.innerHTML = text
+                        .replace(/## (.*?)\n/g, '<h4 class="text-lg font-bold text-blue-600 mt-4 mb-2">$1</h4>')
+                        .replace(/\*\* (.*?)\n/g, '<h5 class="font-bold text-gray-700 mt-3 mb-1">$1</h5>')
+                        .replace(/\n/g, '<br>');
+
+                    resultElement.classList.remove('hidden');
+                    if (onComplete) onComplete();
+
+                } catch (error) {
+                    console.error("Gemini API call failed:", error);
+                    resultElement.innerHTML = '<p class="text-red-500">分析に失敗しました。時間をおいて再度お試しください。</p>';
+                    resultElement.classList.remove('hidden');
+                } finally {
+                    loadingElement.style.display = 'none';
+                }
+            }
+
+            geminiAnalyzeButton.addEventListener('click', async (e) => {
+                if (!activeSkillName) {
+                    alert('まずスキルを選択してください。');
+                    return;
+                }
+                const fieldName = e.target.dataset.field;
+                const prompt = `あなたは経験豊富なキャリアコンサルタントです。「${activeSkillName}」のスキルを持つ自動車エンジニアが、「${fieldName}」の分野に転職する場合の具体的なキャリアパスを分析してください。以下の要素を含めて、ポジティブで説得力のある文章を作成してください。見出しは##、小見出しは**でマークダウン形式で記述してください。\n\n1. **想定される具体的な職種名（3つ程度）**\n2. **自動車業界のスキルがどのように活かせるかの詳細な説明**\n3. **習得すると有利になる追加スキルや知識**\n4. **職務経歴書で使える自己PRのサンプル文章（200字程度）**`;
+                
+                callGeminiAPI(prompt, geminiLoadingPath, geminiResultPathContainer, () => {
+                    interviewCoachContainer.classList.remove('hidden');
+                });
+            });
+
+            geminiInterviewButton.addEventListener('click', async (e) => {
+                if (!activeSkillName) {
+                    alert('まずスキルを選択してください。');
+                    return;
+                }
+                const fieldName = e.target.dataset.field;
+                const prompt = `あなたは優秀な採用面接官です。「${activeSkillName}」のスキルを持つ自動車エンジニアが、「${fieldName}」分野の職種に応募してきたと仮定します。候補者の経験とポテンシャルを見極めるための、鋭い質問を投げかけてください。以下の要素を含めて、マークダウン形式（見出しは##、小見出しは**）で記述してください。\n\n1. **経験とスキルに関する質問（3個）**：具体的なエピソードを深掘りする質問。\n2. **志望動機と適性に関する質問（2個）**：業界への熱意やカルチャーフィットを確認する質問。\n3. **各質問への回答のポイント**：どのような視点で回答すれば高評価に繋がるか、具体的なアドバイス。\n4. **候補者からの逆質問の優れた例（2個）**：企業への深い理解と高い意欲を示すための質問例。`;
+
+                callGeminiAPI(prompt, geminiLoadingInterview, geminiResultInterviewContainer);
+            });
+
+            const ctx = document.getElementById('growthChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [['ファクトリー', 'オートメーション'], ['IoTデバイス'], ['ヘルステック'], ['ドローン'], ['航空宇宙']],
+                    datasets: [{
+                        label: '関連市場の年間平均成長率予測 (CAGR)',
+                        data: [10.0, 8.0, 15.7, 15.2, 9.0],
+                        backgroundColor: ['#FF6B6B', '#FFD166', '#4ECDC4', '#1A2E44', '#06D6A0'],
+                        borderWidth: 0,
+                        borderRadius: 6,
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    devicePixelRatio: 3, // 高解像度化のための設定
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#333',
+                            titleFont: { size: 14 },
+                            bodyFont: { size: 12 },
+                            padding: 10,
+                            displayColors: false,
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    const item = tooltipItems[0];
+                                    let label = item.chart.data.labels[item.dataIndex];
+                                    return Array.isArray(label) ? label.join(' ') : label;
+                                },
+                                label: function(context) {
+                                    return `市場成長予測: ${context.raw}% (CAGR)`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: { display: false, drawBorder: false },
+                            ticks: {
+                                font: { weight: 'bold' },
+                                callback: function(value) { return value + '%'; }
+                            }
+                        },
+                        y: {
+                            grid: { display: false, drawBorder: false },
+                            ticks: { font: { size: 14, weight: 'bold' } }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
