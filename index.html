@@ -37,7 +37,6 @@
             padding: 2.5rem;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             border: 1px solid #E5E7EB;
         }
         .btn-skill {
@@ -117,8 +116,8 @@
     <div class="infographic-container p-4">
 
         <!-- Slide 1: Title -->
-        <div class="infographic-slide text-center">
-            <div class="flex-grow flex flex-col justify-center">
+        <div class="infographic-slide justify-center text-center">
+            <div>
                 <h1 class="text-4xl md:text-5xl font-black leading-tight mb-4" style="font-family: 'Noto Sans JP', sans-serif;">自動車業界エンジニアの<br>あなたへ</h1>
                 <p class="text-xl md:text-2xl font-bold mt-6" style="color: #FF6B6B;">その市場価値、<br>このままで本当に通用する…？</p>
             </div>
@@ -126,31 +125,33 @@
 
         <!-- Slide 2: The Challenge -->
         <div class="infographic-slide">
-            <h2 class="text-2xl font-bold text-center mb-8">100年に一度の<span style="color: #FF6B6B;">大変革期</span>、その渦中で</h2>
-            <div class="space-y-8 my-auto">
-                <div class="flex items-center">
-                    <span class="text-5xl mr-6">🔋</span>
-                    <div>
-                        <h3 class="text-xl font-bold">EVシフトの加速</h3>
-                        <p class="text-gray-600 mt-1">電動化によるハード・ソフトの構造変化</p>
+            <div class="my-auto">
+                <h2 class="text-2xl font-bold text-center mb-8">100年に一度の<span style="color: #FF6B6B;">大変革期</span>、その渦中で</h2>
+                <div class="space-y-8">
+                    <div class="flex items-center">
+                        <span class="text-5xl mr-6">🔋</span>
+                        <div>
+                            <h3 class="text-xl font-bold">EVシフトの加速</h3>
+                            <p class="text-gray-600 mt-1">電動化によるハード・ソフトの構造変化</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-5xl mr-6">🤖</span>
+                        <div>
+                            <h3 class="text-xl font-bold">自動運転の進化</h3>
+                            <p class="text-gray-600 mt-1">ソフトウェア中心への劇的な移行</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-5xl mr-6">🌐</span>
+                        <div>
+                            <h3 class="text-xl font-bold">MaaSの普及</h3>
+                            <p class="text-gray-600 mt-1">「所有」から「利用」への価値観シフト</p>
+                        </div>
                     </div>
                 </div>
-                <div class="flex items-center">
-                    <span class="text-5xl mr-6">🤖</span>
-                    <div>
-                        <h3 class="text-xl font-bold">自動運転の進化</h3>
-                        <p class="text-gray-600 mt-1">ソフトウェア中心への劇的な移行</p>
-                    </div>
-                </div>
-                <div class="flex items-center">
-                    <span class="text-5xl mr-6">🌐</span>
-                    <div>
-                        <h3 class="text-xl font-bold">MaaSの普及</h3>
-                        <p class="text-gray-600 mt-1">「所有」から「利用」への価値観シフト</p>
-                    </div>
-                </div>
+                 <p class="text-center text-gray-500 mt-8">あなたの持つスキルは、<br>新しい時代でこそ輝きを増します。</p>
             </div>
-             <p class="text-center text-gray-500 mt-8">あなたの持つスキルは、<br>新しい時代でこそ輝きを増します。</p>
         </div>
 
         <!-- Slide 3: Skill Simulator -->
@@ -159,7 +160,7 @@
             <p class="text-center text-gray-500 mb-6 text-sm">あなたの専門スキルを選択すると、活躍が期待される未来のフィールドが表示されます。</p>
             <div id="skill-buttons" class="flex flex-wrap justify-center gap-2 mb-6">
             </div>
-            <div id="fields-container" class="bg-gray-50 p-4 rounded-lg flex flex-col justify-center my-auto">
+            <div id="fields-container" class="bg-gray-50 p-4 rounded-lg flex-grow flex flex-col justify-center">
                 <div id="fields-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                    <div id="fields-placeholder" class="col-span-full text-center text-gray-400 transition-opacity duration-300">
                         <span class="text-4xl">👆</span>
@@ -173,14 +174,14 @@
         <div class="infographic-slide">
             <h2 class="text-2xl font-bold text-center mb-6">関連成長分野の<span style="color: #06D6A0;">将来性</span></h2>
             <p class="text-center text-gray-500 mb-6 text-sm">あなたのスキルが活かせる分野は、力強い成長が見込まれています。</p>
-            <div class="chart-container">
+            <div class="chart-container flex-grow">
                 <canvas id="growthChart"></canvas>
             </div>
         </div>
 
         <!-- Slide 5: Call to Action for Free Consultation -->
-        <div class="infographic-slide text-center" style="background-color: #FFD166;">
-            <div class="flex-grow flex flex-col justify-center items-center">
+        <div class="infographic-slide justify-center text-center" style="background-color: #FFD166;">
+            <div>
                 <h2 class="text-3xl font-black mb-4 text-gray-800">未来への第一歩</h2>
                 <p class="text-gray-700 max-w-sm mx-auto mb-6">
                     あなたの市場価値を最大化するために、<br>専門家と一緒にキャリアを考えませんか？
