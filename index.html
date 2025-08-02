@@ -9,19 +9,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Energetic & Playful -->
-    <!-- Application Structure Plan: このインフォグラフィックは、Instagramのカルーセル投稿（5枚）を想定し、各スライドが4:5の比率で完結するよう設計されています。ユーザー（自動車エンジニア）を「共感」→「発見」→「確信」→「行動」へと導くストーリーテリング構造を採用。1枚目で課題を提示し、2枚目で業界の変化を視覚化。3枚目でインタラクティブな「スキル価値発見シミュレーター」を提供し、4枚目でその可能性をデータで裏付け、最後の5枚目で具体的な次のステップを提示します。これにより、ユーザーはスワイプするごとに自身のキャリアの可能性を段階的に理解し、エンゲージメントを高めます。 -->
-    <!-- Visualization & Content Choices: 
-        - Report Info: 業界の大変革。Goal: ユーザーの共感を呼ぶ。Viz/Method: 1枚目のタイトルカード。Interaction: なし。Justification: 強い問いかけでユーザーの注意を引きつけるため。Library: -
-        - Report Info: EV、自動運転、MaaS。Goal: 業界の変化を具体的に示す。Viz/Method: 2枚目のアイコンとテキストカード。Interaction: なし。Justification: 複雑なトレンドを3つのシンプルな要素に分解し、視覚的に理解しやすくするため。Library: -
-        - Report Info: スキルの応用可能性。Goal: 自身の価値を具体的に発見させる。Viz/Method: 3枚目の「スキル価値発見シミュレーター」。Interaction: スキルボタンクリックで、アイコンとキャッチコピー付きのカード型UIがレスポンシブなグリッドレイアウトでアニメーション表示される。カードクリックで詳細モーダルを表示し、Gemini APIによる「キャリアパス分析」「AI面接コーチ」機能を提供。Justification: どのデバイスでも一貫した高品質なUXを提供し、発見の楽しさを演出することでエンゲージメントを高め、離脱を防ぐため。Library: Vanilla JS, Gemini API。
-        - Report Info: 成長分野の将来性。Goal: 発見した可能性を客観的データで裏付ける。Viz/Method: 4枚目の棒グラフ。Interaction: なし。Justification: 定性的なキャリアの可能性を、定量的な市場成長予測で補強し、信頼性を高めるため。Library: Chart.js。
-        - Report Info: 次のステップ。Goal: ユーザーの行動を促す。Viz/Method: 5枚目の結論と無料相談へのCTAカード。Justification: 不安を具体的な行動へと繋げる、明確な次のステップを提供するため。Library: -
-        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
             font-family: 'Inter', 'Noto Sans JP', sans-serif;
-            background-color: #F0F4F8; /* Light Blue-Gray background */
+            background-color: #F0F4F8;
         }
         .infographic-container {
             max-width: 800px;
@@ -58,7 +49,6 @@
             opacity: 1;
             transform: translateY(0);
         }
-        
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -108,6 +98,28 @@
             position: relative;
             width: 100%;
             height: 100%;
+        }
+        /* テーブルのスタイル（レスポンシブ対応） */
+        .growth-table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 0.9rem;
+        }
+        .growth-table th,
+        .growth-table td {
+            border: 1px solid #E2E8F0;
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .growth-table th {
+            background-color: #F7FAFC;
+            font-weight: 700;
+        }
+        .growth-table caption {
+            caption-side: top;
+            text-align: left;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
         }
     </style>
 </head>
@@ -160,7 +172,19 @@
                 <div>
                     <h2 class="text-2xl font-bold text-center mb-4">スキル価値<span style="color: #4ECDC4;">発見</span>シミュレーター</h2>
                     <p class="text-center text-gray-500 mb-6 text-sm">あなたの専門スキルを選択すると、活躍が期待される未来のフィールドが表示されます。</p>
-                    <div id="skill-buttons" class="flex flex-wrap justify-center gap-2 mb-6">
+                    <div id="skill-buttons" class="flex flex-wrap justify-center gap-2 mb-6" aria-label="スキル選択ボタン群">
+                        <!-- フォールバック（JSが動かない場合に手動で選択可能にする簡易版） -->
+                        <noscript>
+                            <div class="text-sm text-red-500 mb-2">JavaScriptが無効なため、スキル選択は動的表示されません。動作する環境で再度ご確認ください。</div>
+                            <div class="flex flex-wrap justify-center gap-2">
+                                <button type="button" class="btn-skill bg-yellow-100 text-yellow-800 font-semibold py-2 px-3 rounded-full text-sm">エンジン/駆動系設計</button>
+                                <button type="button" class="btn-skill bg-yellow-100 text-yellow-800 font-semibold py-2 px-3 rounded-full text-sm">シャシー/車体設計</button>
+                                <button type="button" class="btn-skill bg-yellow-100 text-yellow-800 font-semibold py-2 px-3 rounded-full text-sm">CAD/CAE解析</button>
+                                <button type="button" class="btn-skill bg-yellow-100 text-yellow-800 font-semibold py-2 px-3 rounded-full text-sm">制御システム開発</button>
+                                <button type="button" class="btn-skill bg-yellow-100 text-yellow-800 font-semibold py-2 px-3 rounded-full text-sm">材料開発/物性評価</button>
+                                <button type="button" class="btn-skill bg-yellow-100 text-yellow-800 font-semibold py-2 px-3 rounded-full text-sm">生産技術/品質管理</button>
+                            </div>
+                        </noscript>
                     </div>
                 </div>
                 <div id="fields-container" class="bg-gray-50 p-4 rounded-lg flex-grow flex flex-col justify-center min-h-0">
@@ -174,7 +198,7 @@
             </div>
         </div>
         
-        <!-- Slide 4: Growth Potential Chart -->
+        <!-- Slide 4: Growth Potential Chart + Table -->
         <div class="infographic-slide">
              <div class="flex flex-col h-full">
                 <div>
@@ -184,6 +208,40 @@
                 <div class="chart-container flex-grow min-h-0">
                     <canvas id="growthChart"></canvas>
                 </div>
+                <!-- 追加：表（チャートの補完） -->
+                <div class="mt-4 overflow-x-auto">
+                    <table class="growth-table w-full">
+                        <caption>関連分野の年間平均成長率（CAGR）予測</caption>
+                        <thead>
+                            <tr>
+                                <th>分野</th>
+                                <th>年間平均成長率予測 (CAGR)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>ファクトリーオートメーション</td>
+                                <td>10.0%</td>
+                            </tr>
+                            <tr>
+                                <td>IoTデバイス</td>
+                                <td>8.0%</td>
+                            </tr>
+                            <tr>
+                                <td>ヘルステック</td>
+                                <td>15.7%</td>
+                            </tr>
+                            <tr>
+                                <td>ドローン</td>
+                                <td>15.2%</td>
+                            </tr>
+                            <tr>
+                                <td>航空宇宙</td>
+                                <td>9.0%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -192,7 +250,7 @@
             <div>
                 <h2 class="text-3xl font-black mb-4 text-gray-800">未来への第一歩</h2>
                 <p class="text-gray-700 max-w-sm mx-auto mb-6">
-                    あなたの市場価値を最大化するために、<br>専門家と一緒にキャリアを考えませんか？
+                    あなたの市場価値を最大化するために、<br>専門家と一緒にキャリアを考えませんか？ 
                 </p>
                 <div class="bg-white/70 p-6 rounded-lg text-left w-full max-w-sm mb-6 shadow-md">
                     <h3 class="font-bold text-gray-800 text-lg mb-3 text-center">無料キャリア相談でできること</h3>
@@ -316,11 +374,21 @@
             
             skillsData.forEach(skill => {
                 const button = document.createElement('button');
+                button.type = 'button';
                 button.className = 'btn-skill bg-yellow-100 text-yellow-800 font-semibold py-2 px-3 rounded-full text-sm hover:bg-yellow-200';
                 button.textContent = skill.name;
                 button.dataset.skillId = skill.id;
                 skillButtonsContainer.appendChild(button);
             });
+
+            // 初期表示で最初のスキルを自動選択（ユーザーに何か出ている状態を作る）
+            if (skillsData.length > 0) {
+                // 少し時間を置いてイベントを発火させる（DOMContentLoaded内なので即時でもOK）
+                setTimeout(() => {
+                    const firstButton = skillButtonsContainer.querySelector('button');
+                    if (firstButton) firstButton.click();
+                }, 50);
+            }
 
             skillButtonsContainer.addEventListener('click', (e) => {
                 if (e.target.tagName === 'BUTTON') {
@@ -478,7 +546,7 @@
                     indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
-                    devicePixelRatio: 3, // 高解像度化のための設定
+                    devicePixelRatio: 3,
                     plugins: {
                         legend: { display: false },
                         tooltip: {
@@ -519,3 +587,4 @@
     </script>
 </body>
 </html>
+
